@@ -4,16 +4,16 @@ module.exports = {
 timePeriod: (date) => {
     if(date === undefined)
         return Number.POSITIVE_INFINITY
-    var currentTime = new Date().getTime();
-    var duration = currentTime - date;
+    let currentTime = new Date().getTime();
+    let duration = currentTime - date;
     return duration /= (1000*60*60*24)
 },
 
-check: (item, list = []) => {
-    var exist
+check: (item, list = {}) => {
+    let exist
 
-    for(let i of list){
-        if(list[i] === item){
+    for(let key in list){
+        if(list[key] === item){
             exist = true
             break
         }
@@ -22,7 +22,7 @@ check: (item, list = []) => {
 },
 
 isEmpty: (obj) => {
-    for(var key in obj) {
+    for(let key in obj) {
         if(obj.hasOwnProperty(key))
             return false;
     }

@@ -38,7 +38,35 @@ module.exports = {
         console.log('are not loged in')
         return false
     
-    }
+    },
+    unfollow: async (button) => {
+        let text = await web.page.evaluate(button => button.textContent, button);
+                    
+        console.log(text);
+        if(text === "Following") {
 
-    
+            // Click on unfollow button
+            await path.click(button, '//button[contains(.,"Unfollow")]', 3000, '')
+            .catch((err) => {throw err})
+            let admit = await web.page.$x('//button[contains(.,"Unfollow")]')
+            await admit[0].click();
+            console.log("clicked")
+            return true
+        }
+        return false
+    },
+    like: async () => {
+        let isLikable =await web.page.$('span[aria-label="Like"]');
+        // If you haven't liked this post 
+        if(isLikable) {
+            // Like the post
+            await web.page.click('span[aria-label="Like"]')
+            .catch((err) => {
+                console.log('there is an error in clicking on like button')
+                throw err
+            })
+            return true
+        }
+        return false
+    }
 }

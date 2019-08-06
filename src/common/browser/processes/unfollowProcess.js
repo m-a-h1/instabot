@@ -1,6 +1,6 @@
 const path = require('../api/direction')
-const web = require('../../interfaces/interfaces')
 const act = require('../api/action')
+const web = require('../../interfaces/interfaces')
 const methods = require('../../methods/methods')
 const _error = require('../../handler/errorClass')
 
@@ -26,7 +26,7 @@ const unfollow = {
           // The number of pages that has checked if should be followed
     start: async(tags) => {
         console.log('unfollow process startd.')
-        return await loadFollowingPage()
+        return await unfollow.loadFollowingPage()
      
     },
     loadFollowingPage: async() =>{
@@ -41,18 +41,7 @@ const unfollow = {
         .catch((err) => {throw new _error('unfollow/loadFollowingPage/02', 'loadFollowingPage', err, 'redo')})
         await web.page.waitFor(2000);
 
-        
-    },
-    checkPost: async() => {
-        console.log('check post is started.')
-
-        
-    },
-    getToFollowerPage: async() => {
-        console.log('getToFollowPage is started.')
-
-        
-        
+        return await unfollow.loopOnUnfollowButtons()
     },
     loopOnUnfollowButtons: async() =>{
         console.log('loop is started.')
@@ -69,67 +58,43 @@ const unfollow = {
 
             // count on has goten buttons
             for(let i= unfollow.round; i<unfollow.followersButtons.length; i++){
-                perDelete.time = false
+                console.log('inner loop')
+                unfollow.perDelete.time = false
                 
                 // DO not unfollow protect users
-                unfollow.followingName = followingNameList[i];
+                unfollow.followingName = unfollow.followingNameList[i];
                 unfollow.followingName = await web.page.evaluate(followingName => followingName.textContent, unfollow.followingName);
 
                 // If user is protected from unfollowing
-                for(let proUser of unfollow.saveList) {
-
-                    if(proUser === unfollow.followingName)
-                        save = true;
-                }
-                if(save)
+                if(unfollow.saveList.includes(unfollow.followingName))
                     continue;
                 
-                for(let key in web.Following){
-
-                    console.log('we are in the loop')
-
-                    if(unfollow.followingName === key){
-
-                        if(methods.timePeriod(web.Following(key)) > unfollowPeriod){
-                            delete web.following.key
-                            unfollow.perDelete.time = true
-                            
-                        }
-
+                //          check if database has the current user to unfollow or not
+                if(methods.check(unfollow.followingName, web.following)) {
+                    if(methods.timePeriod(web.following[key]) > unfollowPeriod){
+                        delete web.following.key
+                        unfollow.perDelete.time = true
+                        
                     }
-                    else{
-                        if(unfollow.perDelete.user)
-                            unfollow.perDelete.time = true
-                    }
+                }else{
+                    if(unfollow.perDelete.user)
+                        unfollow.perDelete.time = true
                 }
                 if(unfollow.perDelete.time){
 
                     console.log('i is :', i)
                     let button = unfollow.followersButtons[i];
                 
-                    console.log('**button: ', button)
-                    text = await web.page.evaluate(button => button.textContent, button);
-                    
-                    console.log(text);
-                    if(text === "Following") {
-
-                        // Click on unfollow button
-                        await web.click(button, '//button[contains(.,"Unfollow")]', 3000, '')
-                        .catch((err) => {throw new _error(43, 'unfollow//clickOnnUnfollow button', err, 'redo')})
-                        // button.click();
-                        // await web.page.waitFor(1000)
-                        // await web.page.waitFor('//button[contains(.,"Unfollow")]');
-                        let admit = await web.page.$x('//button[contains(.,"Unfollow")]');
-                        await admit[0].click();
-                        console.log("clicked")
-                        await web.page.waitFor(2000);
-                        unfollowed++;
-                    }
+                    console.log('**button: ')
+                    await act.unfollow(button)          // unfollow
+                    .then(unfollow.hasUnfollowed++)
+                    .catch((err) => {throw new _error('unfollow/loopUnUnfollowButtons/01', 'start', err, 'redo')})
                 } 
-                round++;
-                if(unfollow.hasUnfollowed >= 20)
+                unfollow.round++;
+                if(unfollow.hasUnfollowed >= 20)        // check whether it should stop unfollowing
                     break
             }
+            console.log('out of inner loop')
             // Get the element scroll
             let elementscroll = await web.page.$('main');
             let finish = await web.page.evaluate(elementscroll => {

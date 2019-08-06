@@ -1,13 +1,10 @@
 const CronJob = require('Cron').CronJob;
-
-// const ig = require('./instagram');
-// const job = require('./schedule');
 const handler = require('./src/common/handler/handler');
 
 
 var tags = ['محرم']
 var username = '_tohiid'
-var password = '14#T579*q'
+var password = '902411004'
 
 
 // console.log('before instantiation')
@@ -33,24 +30,11 @@ var password = '14#T579*q'
 ;(async () => {
 
     await startApp()
-    await handler.follow.run(tags)
-    // await startApp()
+    // await handler.follow.run(tags)
+    // await handler.unfollow.run()
 
-    // await handler.followProcess_handler.run(tags);
-
-    // await handler.unfollowProcess_handler.run()
 
     // await handler.likeTagsProcess_handler.run(tags);
-
-    // await ig.login('amirtnt80@yahoo.com', '14#T579*q');
-
-    // await ig.followProcess(['car']);
-
-    // await ig.likeTagsProcess(['cars']);
-
-    // await ig.unfollowProcess()
-
-    // await ig.sendDirect()
 
 
     // const followProcess = new job('0 7 13 * * *', () => {ig.followProcess(['car'])});

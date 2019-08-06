@@ -69,7 +69,7 @@ module.exports = {
         .catch(err => {
 
             console.log('click navigate failed', err)
-            if(waitUntil !=='')
+            if(waitUntil !=='')         // sometimes click action does not lead to a direction change.
                 throw 'click faild'
         })
         
