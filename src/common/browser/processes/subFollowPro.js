@@ -15,12 +15,12 @@ module.exports = async function subFollow (pageLink,notFollowBusiness, notFollow
     let shouldFollow = false
 
     console.log('subFollow')
-    await pageLink.click()
-    .catch((err) => {throw new _error('subFollow//1','',err,'')})
+    await pageLink.click()          // go to the page
+    .catch((err) => {throw new _error('subFollow/01','',err,'')})
 
     await web.page.waitFor(3000)
-    await path.click('', '//button[contains(.,"Follow")]')
-    .catch((err) => {throw new _error('subFollow//2','',err,'')})
+    await path.click('', '//button[contains(.,"Follow")]')          // it will reload the page
+    .catch((err) => {throw new _error('subFollow/02','',err,'')})
     await web.page.waitFor(1000);
     console.log('reload')
 
@@ -32,9 +32,7 @@ module.exports = async function subFollow (pageLink,notFollowBusiness, notFollow
     if(notFollowBusiness & !isBusiness)
         shouldFollow = true
     
-    if(notFollowPrivate & !isPrivate)
-        shouldFollow = true
-    else shouldFollow = false
+    notFollowPrivate & !isPrivate?shouldFollow = true:shouldFollow = false
 
     // shouldFollow = notFollowBusiness & !isPrivate?true:false
 
@@ -48,6 +46,7 @@ module.exports = async function subFollow (pageLink,notFollowBusiness, notFollow
         .catch(() => {throw new _error('subFollow//3','','faild to click on follow button.','')} )
     }
 
+    console.log('is page followd: ', shouldFollow)
     await web.page.waitFor(2000)
     return shouldFollow
     

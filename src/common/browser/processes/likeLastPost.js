@@ -14,6 +14,9 @@ module.exports = async function likeLastPost() {
 
             let link = await web.page.$('article div a')
             await likeAndComment(link)
+            .catch((err) => {
+                throw err
+            })
         }
     }
 }

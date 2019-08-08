@@ -7,10 +7,10 @@ module.exports = {
         // Goto the url
         console.log('loading page');
     
-        web.page.waitFor(2000)
+        await web.page.waitFor(2000)
         await web.page.goto(url, {waitUntil: 'load', timeout: timeout})
         .then( async() => {
-    
+            console.log('page loaded in first step')
             // Check if load is done curectly
             if(check !== ''){
                 await web.page.waitFor(check)
@@ -25,7 +25,8 @@ module.exports = {
             console.log('failed', rej)
             throw "page didn`t load"
         });
-    
+        await web.page.waitFor(1000)
+
     },
 
     click: async(element, check='',timeout=10000, waitUntil='networkidle0') => {
@@ -57,7 +58,7 @@ module.exports = {
             click = 'reload'
         }
 
-        web.page.waitFor(2000)
+        await web.page.waitFor(2000)
         /* Click on seleced element and wait to load fully*/
         await Promise.all([
 

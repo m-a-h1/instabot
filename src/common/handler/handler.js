@@ -1,7 +1,9 @@
 const init = require('../browser/index')
 const web = require('../interfaces/interfaces')
 const login = require('../browser/processes/loginPro')
+const follow = require('../browser/processes/followPro')
 const unfollow = require('../browser/processes/unfollowProcess')
+const likeAndComment = require('../browser/processes/likeAndCommentPro')
 
 const handler = {
 
@@ -32,7 +34,7 @@ const handler = {
                 console.log('error in login: ', err)
                 handler.login.failCounter++
                 console.log('faild number',handler.login.failCounter)
-                if(err.act = 'redo'){
+                if(err.action = 'redo'){
                     if(handler.login.failCounter >= 3){
                         console.log('oooooooooooooo')
                         throw 'there is an problem in program.'
@@ -54,9 +56,10 @@ const handler = {
             .catch((err) => {
                 console.log('error in follow: ', err)
                 handler.follow.failCounter++
-                if(err.act = 'redo'){
+                if(err.action === 'redo'){
                     if(handler.follow.failCounter >= 5)
                         throw 'there is an problem in program.'
+                    console.log('iiiiiii aaaam heeere!')
                     handler.follow.run(tags,err.addres)
                 }
                 else
@@ -74,7 +77,7 @@ const handler = {
             .catch((err) => {
                 console.log('error in unfollow: ', err)
                 handler.unfollow.failCounter++
-                if(err.act = 'redo'){
+                if(err.action = 'redo'){
                     if(handler.unfollow.failCounter >= 5)
                         throw 'there is an problem in program.'
                     handler.unfollow.run()
@@ -84,6 +87,23 @@ const handler = {
             })
         }
 
+    },
+    likeAndComment: async () => {
+        run: async(item) => {
+            await likeAndComment(item)
+            .then((resolve) => console.log('unfollow has done properly.', resolve))
+            .catch((err) => {
+                console.log('error in unfollow: ', err)
+                handler.unfollow.failCounter++
+                if(err.action = 'redo'){
+                    if(handler.unfollow.failCounter >= 5)
+                        throw 'there is an problem in program.'
+                    handler.unfollow.run()
+                }
+                else
+                    throw 'fatal error in login'
+            })
+        }
     },
     closeBrowser: {
         run: async() => {

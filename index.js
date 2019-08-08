@@ -2,15 +2,16 @@ const CronJob = require('Cron').CronJob;
 const handler = require('./src/common/handler/handler');
 
 
-var tags = ['محرم']
-var username = '_tohiid'
-var password = '902411004'
+let tags = ['محرم']
+let names = ['kimyaesaadat.store']
+let username = '_tohiid'
+let password = '902411004'
 
 
 // console.log('before instantiation')
 // const job1 = new CronJob('*/1 * * * * *',() => {
-//     var date = new Date()
-//     var time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+//     let date = new Date()
+//     let time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 //     console.log('-------')
 //     console.log('date',time)
 // })
@@ -30,7 +31,7 @@ var password = '902411004'
 ;(async () => {
 
     await startApp()
-    // await handler.follow.run(tags)
+    await handler.follow.run(tags)
     // await handler.unfollow.run()
 
 
@@ -69,8 +70,8 @@ async function start() {
 }
 
 
-var counter = 0
-var result
+let counter = 0
+let result
 async function startApp() {
     while(!(result = await start())){
         console.log('conter is : ', ++counter, result)

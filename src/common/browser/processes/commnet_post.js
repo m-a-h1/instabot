@@ -17,7 +17,7 @@ module.exports = async () => {
 
     for(var i = 0; i<=3; i++){          // try three time to post the comment
 
-        await web.page.type('textarea',"perfect",{delay: 50})
+        await web.page.type('textarea',"یا علی",{delay: 50})
         await web.page.waitFor(500);
         await path.click('button[type="submit"]', `main ul ul a:nth-child(1)[title=${web.pageName}]`)
         .then(() => {i = 10;console.log('posted')})

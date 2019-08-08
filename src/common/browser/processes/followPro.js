@@ -2,6 +2,7 @@ const path = require('../api/direction')
 const web = require('../../interfaces/interfaces')
 const act = require('../api/action')
 const methods = require('../../methods/methods')
+const followLoop = require('../processes/followLoopPro')
 const subFollow = require('../processes/subFollowPro')
 const likeLastPost = require('./likeLastPost')
 const _error = require('../../handler/errorClass')
@@ -10,16 +11,12 @@ const _error = require('../../handler/errorClass')
 
 const follow = {
     tags : [],      // Tags array
-    limit : 20,     // The maximum number that should be followed
-    notFollowBusinessPage:false,        // If it should follow the buisness pages
-    notFollowPrivatePage : true,        // If it should follow the private pages
-    hasFollowed : 0,        // The number of pages that has followed
-    currentPage : '',       // The current page that try to get its followers
-    round: 0,       // The number of pages that has checked if should be followed
+    currentPage : '',       // The current page that try to get its followers    
+    counter: {round: 0, hasFollowed : 0},       // The number of pages that has checked if should be followed
+                                                // The number of pages that has followed
     start: async(tags) => {
         console.log('follow process started.')
         follow.tags = tags
-        follow.limit
         console.log('currentPage: ', follow.currentPage)
         if(await act.loginCheck())
             return await follow.loadTAG()
@@ -77,78 +74,30 @@ const follow = {
     getToFollowerPage: async() => {         // Usually it should be the base for any break
         console.log('getToFollowPage is started.')
 
-        if(follow.currentPage === '') {    // If there was a current page
-            await path.click('header > div:nth-child(2) a:nth-child(1)', 'ul > li:nth-child(2) > a',10000)   // Click on page link
-            .then()
-            .catch((err) => {throw new _error('follow/getToFollowPage/01', 'getTOFollowerPage', err, 'redo')})
-            await web.page.waitFor(2000);
-    
-            // Save current page.
-            follow.currentPage = await web.page.url();
-        }
-        else{
-            await path.goto_page(follow.currentPage, 'ul > li:nth-child(2) > a')
-            .catch((err) => {throw new _error('follow/getToFollowerPage/02', 'getTOFollowerPage', err, 'redo') })
-            await web.page.waitFor(2000);
-        }
-
-        // Click on the followers link
-        await path.click('//a[contains(., "followers")]','img',10000)
-        .catch((err) => {throw new _error('follow//getToFollowerPage/03', 'getTOFollowerPage', err, 'redo')})
-        await web.page.waitFor(2000);
-
+        let page
+        follow.currentPage === ''? page = 'header > div:nth-child(2) a:nth-child(1)':page = follow.currentPage;
+        console.log('---------page is : ', page)
+        await act.reachToFollowerPage(page)         
+        .then(() => {follow.currentPage = web.page.url()})          // Save current page.
+        .catch((err) => {
+            err.addres = 'getToFollowerPage'
+            err.code = 'follow/getToFollowPage'
+            throw err
+        })
+        
         return await follow.loopOnFollowButtons()
     },
     loopOnFollowButtons: async() =>{
-        console.log('loop is started.')
-        while(follow.hasFollowed <= follow.limit){
-            console.log('loop 1')
-            let followButtons = await web.page.$$('button');
-            for(let i= follow.round; i<followButtons.length; i++){
-                console.log('loop 2')
-    
-                console.log('i,followed, round');
-                console.log(i,' _ ', follow.hasFollowed, ' _ ', follow.round);
-
-                followButtons = await web.page.$$('button');
-                var linkPage = await web.page.$$('a[title]')
-                let button = followButtons[i];
-                
-                let buttenText = await web.page.evaluate(button => button.textContent, button);
-                var pageName = await web.page.evaluate((element) => element.textContent,linkPage[i]);
-                
-                console.log(buttenText);
-                if(buttenText == "Follow") {
-                    let isFollowed = await subFollow(linkPage[i],follow.notFollowBusinessPage,follow.notFollowPrivatePage)
-                    .catch((err) => {
-                        err.addres = 'getToFollowerPage'
-                        err.action = 'redo'
-                        throw err
-                    })
-                    if(isFollowed) {
-                        follow.hasFollowed++;
-                        web.following[pageName] = new Date().getTime();
-                        if(likeLastPost){
-                            await likeLastPost()
-                        }
-                        if(follow.hasFollowed >= follow.limit)
-                            break
-                    }
-                    follow.round++
-                    await follow.getToFollowerPage()
-                    console.log('heeeeeyyyy!!!!!')
-                }
-                follow.round++
-            }
-            // check limit
-            if(follow.hasFollowed >= follow.limit)
-                return true
-            // scroll
-            let elementscroll = await web.page.$('main');
-            await web.page.evaluate( elementscroll => elementscroll.scrollBy(0,500), elementscroll);
-        }
-        web.allHasFollowed += follow.hasFollowed
-        return true
+        console.log('we are in loopOnFollowButtons.')
+        await followLoop(follow.counter)
+        .then(async (res) =>{
+            if(res === 'getToFollowerPage')
+                await follow.getToFollowerPage()
+            return true
+        })
+        .catch((err) => {
+            throw err
+        })
     }
 }
 
