@@ -14,4 +14,9 @@ module.exports = {
     notFollowBusinessPage: false,        // If it should follow the buisness pages
     notFollowPrivatePage: true,        // If it should follow the private pages
     comments: [''],
+    comment_text:"فروش انواع پرچم های مذهبی در ابعاد و طرح های دلخواه شما با بالاترین کیفیت چاپ و مناسب ترین قیمت بازار.\n\
+    انواع محصولات فرهنگی\
+    میتوانید مارا از طریق این صفحه دنبال کنید: @_tohiid\n\
+    #پرچم #مذهبی #"
+    
 }

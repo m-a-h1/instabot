@@ -29,7 +29,7 @@ module.exports = async(counter) => {         // counter contains <round> and <ha
             if(buttenText == "Follow") {
                 let isFollowed = await subFollow(linkPage[i],web.notFollowBusinessPage,web.notFollowPrivatePage)
                 .catch((err) => {
-                    err.addres = 'getToFollowerPage'
+                    err.addres = 'getToPostPage'
                     err.action = 'redo'
                     throw err
                 })
@@ -47,7 +47,7 @@ module.exports = async(counter) => {         // counter contains <round> and <ha
                 }
                 console.log('is followed: ', isFollowed)
                 counter.round++
-                return 'getToFollowerPage'
+                return 'getToPostPage'
             }
             counter.round++
         }

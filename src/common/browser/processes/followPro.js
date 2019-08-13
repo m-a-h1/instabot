@@ -26,19 +26,30 @@ const follow = {
     },
     loadTAG: async() =>{
         console.log('here we are')
-        
         for(let tag of follow.tags) {
             console.log('tag name: ', tag)
-            
-            await path.goto_page(web.TAG_URL(tag), 'article > div:nth-child(1) img[decoding="auto"]')
-            .then(console.log('we are in tags'))
-            .catch((err) => {throw new _error('follow//loadTag/01', 'start',err, 'redo')})
 
-            if(!await follow.checkPost())
-                break
+            switch(tag.search('#')){
+                case 0:
+                    console.log('gaven is a tag.')
+                    await path.goto_page(web.TAG_URL(tag.substring(1)), 'article > div:nth-child(1) img[decoding="auto"]')
+                    .then(console.log('we are in tags'))
+                    .catch((err) => {throw new _error('follow//loadTag/01', 'start',err, 'redo')})
+                    // check the page
+                    if(!await follow.checkPost())
+                        return await follow.getToPostPage()
+                    break
+                case -1:
+                    console.log('gaven is a page')
+                    follow.currentPage = web.Page_URL(tag)
+                    await path.goto_page(follow.currentPage, 'article > div:nth-child(1) img[decoding="auto"]')
+                    .then(console.log('we are in tags'))
+                    .catch((err) => {throw new _error('follow//loadTag/01', 'start',err, 'redo')})
+                    return await follow.loopOnFollowButtons()
+            }
         }
 
-        return await follow.getToFollowerPage()
+        
     },
     checkPost: async() => {
         console.log('check post is started.')
@@ -47,7 +58,7 @@ const follow = {
 
         for(let i = 0; i <= 6; i++){
 
-            posts = await web.page.$$('article > div:nth-child(1) img[decoding="auto"]');   // Get all post.
+            posts = await web.page.$$('article > div:nth-child(1) img[decoding="auto"]');   // Get all postS.
             post = posts[i];
     
             // Click on the post
@@ -71,16 +82,16 @@ const follow = {
         }
         return used
     },
-    getToFollowerPage: async() => {         // Usually it should be the base for any break
+    getToPostPage: async() => {         // Usually it should be the base for any break
         console.log('getToFollowPage is started.')
 
         let page
         follow.currentPage === ''? page = 'header > div:nth-child(2) a:nth-child(1)':page = follow.currentPage;
         console.log('---------page is : ', page)
-        await act.reachToFollowerPage(page)         
+        await act.loadPage(page)         
         .then(() => {follow.currentPage = web.page.url()})          // Save current page.
         .catch((err) => {
-            err.addres = 'getToFollowerPage'
+            err.addres = 'getToPostPage'
             err.code = 'follow/getToFollowPage'
             throw err
         })
@@ -89,10 +100,16 @@ const follow = {
     },
     loopOnFollowButtons: async() =>{
         console.log('we are in loopOnFollowButtons.')
+        // Click on the followers link
+        await web.page.waitFor(2000)
+        await path.click('//a[contains(., "followers")]','img',10000)
+        .catch((err) => {throw new _error('follow/loopOnFollowButton', 'loadTAG', err, 'redo')})
+        await web.page.waitFor(2000);
+
         await followLoop(follow.counter)
         .then(async (res) =>{
-            if(res === 'getToFollowerPage')
-                await follow.getToFollowerPage()
+            if(res === 'getToPostPage')
+                await follow.getToPostPage()
             return true
         })
         .catch((err) => {

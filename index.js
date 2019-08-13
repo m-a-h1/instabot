@@ -2,7 +2,7 @@ const CronJob = require('Cron').CronJob;
 const handler = require('./src/common/handler/handler');
 
 
-let tags = ['محرم']
+let tags = ['javad_moghadam_clip', '#محرم']
 let names = ['kimyaesaadat.store']
 let username = '_tohiid'
 let password = '902411004'

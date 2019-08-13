@@ -70,26 +70,22 @@ module.exports = {
         }
         return false
     },
-    reachToFollowerPage: async(page) => {
+    loadPage: async(page) => {
         console.log('reachToFollowerpage started.')
         
-        if(page.search('http') === 0) {    // If there was a current page
-            console.log('it use current url')
-            await path.goto_page(page, 'ul > li:nth-child(2) > a')
-            .catch((err) => {throw new _error('reachToFollowerPage', '', '1:'+err, 'redo') })
-            await web.page.waitFor(2000);
-        }
-        else{
+        if(page.search('header') === 0){
             console.log('it user the path')
             await path.click(page, 'ul > li:nth-child(2) > a',10000)   // Click on page link
             .then()
-            .catch((err) => {throw new _error('reachToFollowerPage', '', '2:'+err, 'redo')})
+            .catch((err) => {throw new _error('action/loadpage', '', '2:'+err, 'redo')})
             await web.page.waitFor(2000);
         }
+        else {    // If there was a current page
+            console.log('it use current url')
+            await path.goto_page(page, 'ul > li:nth-child(2) > a')
+            .catch((err) => {throw new _error('actoin/loadpage', '', '1:'+err, 'redo') })
+            await web.page.waitFor(2000);
+        }
+    },
 
-        // Click on the followers link
-        await path.click('//a[contains(., "followers")]','img',10000)
-        .catch((err) => {throw new _error('reachToFollowerPage', '', '3:'+err, 'redo')})
-        await web.page.waitFor(2000);
-    }
 }
